@@ -12,4 +12,10 @@ public class UserEntity {
     private Integer id;
 
     private String name;
+
+    @Column(unique = true, nullable = false, length = 50)
+    private String username;
+
+    @Column(nullable = false,length = 50)
+    private String password;
 }
