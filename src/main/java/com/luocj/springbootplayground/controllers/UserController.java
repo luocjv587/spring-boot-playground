@@ -5,6 +5,7 @@ import com.luocj.springbootplayground.entities.UserEntity;
 import com.luocj.springbootplayground.entities.UserLoginRecordEntity;
 import com.luocj.springbootplayground.repositories.UserLoginRecordRepository;
 import com.luocj.springbootplayground.repositories.UserRepository;
+import com.luocj.springbootplayground.utils.IpUtil;
 import com.luocj.springbootplayground.utils.RedisUtil;
 import com.luocj.springbootplayground.vos.CreateUserVo;
 import com.luocj.springbootplayground.vos.LoginVo;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.alibaba.fastjson.JSONObject;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -32,6 +34,9 @@ public class UserController {
 
     @Resource
     private RedisUtil redisUtil;
+
+    @Resource
+    private IpUtil ipUtil;
 
     @Resource
     private JwtConfig jwtConfig ;
@@ -54,7 +59,7 @@ public class UserController {
     }
 
     @PostMapping("/user/login")
-    public Result userLogin(@Validated LoginVo loginVo){
+    public Result userLogin(@Validated LoginVo loginVo, HttpServletRequest request){
         UserEntity n = userRepository.findByUsername(loginVo.getUsername());
         if (n == null || !n.getPassword().equals(loginVo.getPassword())){
             return Result.failure(ResultCode.FAILURE,"登录失败") ;
@@ -69,6 +74,7 @@ public class UserController {
         userLoginRecordEntity.setUser_id(n.getId());
         userLoginRecordEntity.setCreated_at(dateFormat.format(date));
         userLoginRecordEntity.setUpdated_at(dateFormat.format(date));
+        userLoginRecordEntity.setIp(ipUtil.getIpAddress(request));
         userLoginRecordRepository.save(userLoginRecordEntity);
         if (!StringUtils.isEmpty(token)) {
             json.put("token",token) ;

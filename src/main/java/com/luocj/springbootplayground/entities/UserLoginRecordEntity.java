@@ -16,4 +16,5 @@ public class UserLoginRecordEntity {
     private Integer user_id;
     private String created_at;
     private String updated_at;
+    private String ip;
 }
